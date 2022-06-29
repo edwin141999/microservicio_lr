@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id           Int          @id @unique(map: "id") @default(autoincrement())
+  first_name   String       @db.VarChar(255)
+  last_name    String       @db.VarChar(255)
+  email        String?      @db.VarChar(255)
+  password     String       @db.VarChar(255)
+  phone_number String      @db.VarChar(10)          
+  user_type    String       @db.VarChar(255)
+  cliente      cliente[]
+  repartidor   repartidor[]
+  reputacion   reputacion[]
+  tipopago     tipopago[]
+}
+
+model tipopago {
+  id            Int    @id @unique(map: "id") @default(autoincrement())
+  user_id       Int
+  metodo        String @db.VarChar(255)
+  numero_cuenta Int?
+  users         users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tipopago_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model reputacion {
+  id      Int   @id @unique(map: "id") @default(autoincrement())
+  user_id Int
+  puntaje Float
+  users   users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reputacion_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model repartidor {
+  id         Int    @id @unique(map: "id") @default(autoincrement())
+  user_id    Int
+  city_drive String @db.VarChar(255)
+  estado     String @db.VarChar(15)
+  users      users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "repartidor_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model cliente {
+  id        Int    @id @unique(map: "id") @default(autoincrement())
+  user_id   Int
+  direccion String @db.VarChar(255)
+  users     users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cliente_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
