@@ -1,18 +1,16 @@
-FROM node:16-alpine
+FROM node:16
 
-RUN mkdir -p /home/node/app/node_modules && chown node:node /home/node/app
-
-WORKDIR /home/node/app
+WORKDIR /app
 
 COPY package*.json ./
+COPY prisma ./prisma
+COPY .env ./
 
-USER node
-
-RUN npm install -g npm@latest
 RUN npm install
+RUN npx prisma generate
 
-COPY --chown=node:node . .
+COPY . .
 
-EXPOSE 80
+EXPOSE 3000
 
-CMD ["node", "index.js"]
+CMD npm start
