@@ -1,16 +1,18 @@
-FROM node:16
-
+FROM node:16-alpine
 WORKDIR /app
 
-COPY package*.json ./
-COPY prisma ./prisma
-COPY .env ./
+RUN apk update
+RUN apk add git bash
+RUN git clone http://github.com/edwin141999/microservicio_lr.git
 
-RUN npm install
-RUN npx prisma generate
+COPY package*.json microservicio_lr/
+COPY prisma microservicio_lr/prisma
+COPY .env microservicio_lr/
 
-COPY . .
+RUN cd microservicio_lr && npm install && npx prisma generate
 
 EXPOSE 3000
 
-CMD npm start
+RUN apk add psmisc
+
+CMD cd microservicio_lr && npm start
