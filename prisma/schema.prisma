@@ -13,7 +13,7 @@ model users {
   last_name    String       @db.VarChar(255)
   email        String?      @db.VarChar(255)
   password     String       @db.VarChar(255)
-  phone_number String      @db.VarChar(10)          
+  phone_number String       @db.VarChar(10)
   user_type    String       @db.VarChar(255)
   cliente      cliente[]
   repartidor   repartidor[]
@@ -51,10 +51,38 @@ model repartidor {
 }
 
 model cliente {
-  id        Int    @id @unique(map: "id") @default(autoincrement())
+  id        Int       @id @unique(map: "id") @default(autoincrement())
   user_id   Int
-  direccion String @db.VarChar(255)
-  users     users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cliente_ibfk_1")
+  direccion String    @db.VarChar(255)
+  users     users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cliente_ibfk_1")
+  pedidos   pedidos[]
 
   @@index([user_id], map: "user_id")
+}
+
+model item {
+  id                Int       @id @unique(map: "id") @default(autoincrement())
+  tipo_producto     String    @db.VarChar(255)
+  recoger_ubicacion String    @db.VarChar(255)
+  descripcion       String?   @db.VarChar(255)
+  pedidos           pedidos[]
+}
+
+model pedidos {
+  id               Int       @id @unique(map: "id") @default(autoincrement())
+  delivery_id      Int?
+  envio_id         Int
+  cliente_id       Int
+  fecha_solicitada DateTime? @default(dbgenerated("(now())")) @db.Date
+  hora_solicitada  DateTime? @default(dbgenerated("(now())")) @db.Timestamp(3)
+  hora_entregada   DateTime? @db.Timestamp(0)
+  entrega_estimada Int
+  metodo_pago      String    @db.VarChar(255)
+  subtotal         String    @db.VarChar(10)
+  cliente          cliente   @relation(fields: [cliente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pedidos_ibfk_2")
+  item             item      @relation(fields: [envio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pedidos_ibfk_3")
+
+  @@index([cliente_id], map: "cliente_id")
+  @@index([delivery_id], map: "delivery_id")
+  @@index([envio_id], map: "envio_id")
 }
